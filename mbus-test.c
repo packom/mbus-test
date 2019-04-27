@@ -44,10 +44,11 @@ int get_termios(int fd, struct termios *t)
 
 void change_termios(struct termios *t)
 {
-  t->c_cflag &= ~(CSTOPB | CSIZE | CRTSCTS);
+  t->c_cflag &= ~(CSTOPB | CSIZE | PARODD | HUPCL);
   t->c_cflag |= CS8 | CREAD | CLOCAL | PARENB;
-  t->c_iflag = IGNPAR;
+  t->c_iflag = 0;
   t->c_oflag = 0;
+  t->c_lflag = 0;
   t->c_cc[VMIN] = (cc_t)0;
   t->c_cc[VTIME] = (cc_t)2;
 }
@@ -86,7 +87,6 @@ int set_up_device(char *dev, FILE **file, speed_t speed)
   EXIT_IF_FAILED(fd, "Failed to open device %s %d\n", dev, errno);
   EXIT_IF_NULL(*file, "Failed to open device %s %d\n", dev, errno);
 
-  change_termios(&t);
   rc = get_termios(fd, &t);
   EXIT_IF_FAILED(fd, "Failed to open device %s %d\n", dev, errno);
   log_termios(&t);
@@ -97,8 +97,13 @@ int set_up_device(char *dev, FILE **file, speed_t speed)
   rc = set_ospeed(&t, speed);
   EXIT_IF_FAILED(rc, "Failed to set ospeed %d\n", errno);
 
+  change_termios(&t);
   rc = set_termios(fd, &t);
   EXIT_IF_FAILED(rc, "Failed to set termios %d\n", errno);
+
+  rc = get_termios(fd, &t);
+  EXIT_IF_FAILED(fd, "Failed to open device %s %d\n", dev, errno);
+  log_termios(&t);
 
   speed = get_ispeed(&t);
   fprintf(stdout, "  ispeed set to %s baud\n", get_baud_rate_as_string(speed));

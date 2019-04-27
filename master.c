@@ -21,7 +21,9 @@
 
 int main(int argc, char *argv[])
 {
-  int fd, rc, c;
+  int fd, rc, ii;
+  size_t rc2;
+  char array[256];
   FILE *file;
   char *device;
   speed_t speed;
@@ -40,17 +42,15 @@ int main(int argc, char *argv[])
 
   fprintf(stdout, "Sending data ...\n");
 
-  for (c = 0; c < 256; c++)
+  for (ii = 0; ii < 256; ii++)
   {
-    fprintf(stdout, "%2.2x ", c);
-    rc = fputc(c, file);
-    if (rc != c)
-    {
-      fprintf(stderr, "\nFailed to send char 0x%2.2x %d %d\n", c, rc, errno);
-      return 1;
-    }
+    array[ii] = ii;
   }
-  fprintf(stdout, "\n");
+  rc2 = fwrite(array, 1, 256, file);
+  if (rc2 < 256)
+  {
+    fprintf(stderr, "Failed to send some bytes %d %d", rc2, errno);
+  }
 
   fprintf(stdout, "Sent\n");
 

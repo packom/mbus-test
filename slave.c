@@ -21,7 +21,9 @@
 
 int main(int argc, char *argv[])
 {
-  int fd, rc, c;
+  int fd, rc;
+  size_t rc2;
+  char array[1];
   FILE *file;
   char *device;
   speed_t speed;
@@ -42,11 +44,26 @@ int main(int argc, char *argv[])
 
   do
   {
-    c = fgetc(file);
-    fprintf(stdout, "  Got char: 0x%2.2x\n", c);
-  } while (c != EOF);
-
-  fprintf(stdout, "Hit EOF\n");
+    rc2 = fread(array, 1, 1, file);
+    if (rc2 == 1)
+    {
+      fprintf(stdout, "%2.2x", array[0]);
+    }
+    else
+    {
+      rc = feof(file);
+      if (rc)
+      {
+        //fprintf(stdout, "\nHit EOF\n", rc );
+      }
+      rc = ferror(file);
+      if (rc)
+      {
+        fprintf(stdout, "\nHit error %d\n", rc);
+      }
+      clearerr(file);
+    }
+  } while (1);
 
   fclose(file);
 
