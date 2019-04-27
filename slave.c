@@ -26,13 +26,13 @@ int main(int argc, char *argv[])
   char *device;
   speed_t speed;
 
-  device = handle_args(argc, argv, APP_DESC);
-  if (device == NULL)
+  rc = handle_args(argc, argv, APP_DESC, &device, &speed);
+  if (rc < 1)
   {
-    return 0;
+    return rc;
   }
 
-  fd = set_up_device(device, &file, B9600);
+  fd = set_up_device(device, &file, speed);
   if (fd < 0)
   {
     return fd;

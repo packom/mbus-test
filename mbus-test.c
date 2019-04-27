@@ -154,16 +154,27 @@ speed_t get_ispeed(struct termios *t)
   return rc;
 }
 
-char *handle_args(int argc, char *argv[], char *app_desc)
+// Returns:
+// - 1 if all OK
+// - 0 if printed version or help (and should now exit)
+// - -1 on error
+int handle_args(int argc, char *argv[], char *app_desc, char **device, speed_t *speed)
 {
-  char *device = NULL;
+  int rc = -1, ii, got_baud;
 
+  // Set defaults first
+  *speed = BAUDRATE;
+  *device = DEVICE;
+
+  // Process args
   if (argc > 1)
   {
+    // If getting version of help return -1 so app exits
     if (!strncmp(argv[1], ARG_VERSION1, strlen(ARG_VERSION1)) ||
         !strncmp(argv[1], ARG_VERSION2, strlen(ARG_VERSION2)))
     {
       fprintf(stdout, VERSION(app_desc));
+      rc = 0;
       goto EXIT_LABEL;
     }
     else if (!strncmp(argv[1], ARG_HELP1, strlen(ARG_HELP1)) ||
@@ -171,23 +182,59 @@ char *handle_args(int argc, char *argv[], char *app_desc)
              !strncmp(argv[1], ARG_HELP3, strlen(ARG_HELP3)))
     {
       fprintf(stdout, VERSION(app_desc));
-      fprintf(stdout, "Usage: %s [device]\n", argv[0]);
-      fprintf(stdout, "       device - defaults to %s\n", DEVICE);
+      fprintf(stdout, "Usage: %s [-b BAUDRATE] [device]\n", argv[0]);
+      fprintf(stdout, "       [-b BAUDRATE] - baudrate, defaults to\n", BAUDRATE);
+      fprintf(stdout, "       [device]      - defaults to %s\n", DEVICE);
+      rc = 0;
       goto EXIT_LABEL;
+    }
+    
+    // Looks for baudrate
+    if (argc >= 3)
+    {
+      if (!strncmp(argv[1], "-b", 2))
+      {
+        got_baud = 0;
+        for (ii = 0; ii < NUM_BAUD_RATES; ii++)
+        {
+          if (!strncmp(argv[2], rates[ii].bauds, strlen(rates[ii].bauds)))
+          {
+            *speed = rates[ii].baud;
+            got_baud = 1;
+            break;
+          }
+        }
+        if (!got_baud)
+        {
+          fprintf(stderr, "Invalid baud rate specified\n");
+          rc = -1;
+          goto EXIT_LABEL;
+        }
+      }
+    }
+
+    // Look for device
+    if (argc == 2)
+    {
+      *device = argv[1];
+    }
+    else if (argc == 4)
+    {
+      *device = argv[3];
     }
   }
 
-  if (argc > 1)
+  if (*device[0] != '/')
   {
-    device = argv[1];
+    fprintf(stderr, "Invalid device specified %s\n", *device);
+    rc = -1;
+    goto EXIT_LABEL;
   }
-  else
-  {
-    device = DEVICE;
-  }
+
+  rc = 1;
 
 EXIT_LABEL:  
 
-  return device;
+  return rc;
 }
 

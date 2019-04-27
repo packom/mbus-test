@@ -22,6 +22,7 @@
 #include <string.h>
 
 #define DEVICE "/dev/serial0"
+#define BAUDRATE 9600
 
 #define ARG_VERSION1  "--version"
 #define ARG_VERSION2  "-v"
@@ -89,4 +90,4 @@ int set_ospeed(struct termios *t, speed_t speed);
 int set_ispeed(struct termios *t, speed_t speed);
 speed_t get_ospeed(struct termios *t);
 speed_t get_ispeed(struct termios *t);
-char *handle_args(int argc, char *argv[], char *app_desc);
+int handle_args(int argc, char *argv[], char *app_desc, char **device, speed_t *speed);

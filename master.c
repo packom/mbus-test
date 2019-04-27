@@ -26,13 +26,13 @@ int main(int argc, char *argv[])
   char *device;
   speed_t speed;
 
-  device = handle_args(argc, argv, APP_DESC);
-  if (device == NULL)
+  rc = handle_args(argc, argv, APP_DESC, &device, &speed);
+  if (rc < 1)
   {
-    return 0;
+    return rc;
   }
 
-  fd = set_up_device(device, &file, B9600);
+  fd = set_up_device(device, &file, speed);
   if (fd < 0)
   {
     return fd;
@@ -42,13 +42,15 @@ int main(int argc, char *argv[])
 
   for (c = 0; c < 256; c++)
   {
+    fprintf(stdout, "%2.2x ", c);
     rc = fputc(c, file);
     if (rc != c)
     {
-      fprintf(stderr, "Failed to send char 0x%2.2x %d %d\n", c, rc, errno);
+      fprintf(stderr, "\nFailed to send char 0x%2.2x %d %d\n", c, rc, errno);
       return 1;
     }
   }
+  fprintf(stdout, "\n");
 
   fprintf(stdout, "Sent\n");
 
