@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     return 0;
   }
 
-  fd = set_up_device(device, &file, B2400);
+  fd = set_up_device(device, &file, B9600);
   if (fd < 0)
   {
     return fd;

@@ -44,7 +44,10 @@ int get_termios(int fd, struct termios *t)
 
 void change_termios(struct termios *t)
 {
+  t->c_cflag &= ~(CSTOPB | CSIZE | CRTSCTS);
   t->c_cflag |= CS8 | CREAD | CLOCAL | PARENB;
+  t->c_iflag = IGNPAR;
+  t->c_oflag = 0;
   t->c_cc[VMIN] = (cc_t)0;
   t->c_cc[VTIME] = (cc_t)2;
 }
@@ -60,13 +63,13 @@ void log_termios(struct termios *t)
 {
   int ii;
 
-  //fprintf(stdout, "  c_iflag 0x%08x\n", t->c_iflag);
-  //fprintf(stdout, "  c_oflag 0x%08x\n", t->c_oflag);
-  //fprintf(stdout, "  c_cflag 0x%08x\n", t->c_cflag);
-  //fprintf(stdout, "  c_lflag 0x%08x\n", t->c_lflag);
+  fprintf(stdout, "  c_iflag 0x%08x\n", t->c_iflag);
+  fprintf(stdout, "  c_oflag 0x%08x\n", t->c_oflag);
+  fprintf(stdout, "  c_cflag 0x%08x\n", t->c_cflag);
+  fprintf(stdout, "  c_lflag 0x%08x\n", t->c_lflag);
   for (ii = 0; ii < NCCS; ii++)
   {
-    //fprintf(stdout, "c_cc[%d] 0x%08x\n", ii, t->c_cc[ii]);
+    fprintf(stdout, "c_cc[%d] 0x%08x\n", ii, t->c_cc[ii]);
   }
 
   return;
