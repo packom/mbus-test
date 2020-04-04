@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
   FILE *file;
   char *device;
   speed_t speed;
+  int ii;
 
   rc = handle_args(argc, argv, APP_DESC, &device, &speed);
   if (rc < 1)
@@ -42,12 +43,17 @@ int main(int argc, char *argv[])
 
   fprintf(stdout, "Waiting for data ...\n");
 
+  ii = 0;
   do
   {
     rc2 = fread(array, 1, 1, file);
     if (rc2 == 1)
     {
       fprintf(stdout, "%2.2x", array[0]);
+      if (array[0] == ii)
+      {
+        ii++;
+      }
     }
     else
     {
@@ -62,6 +68,11 @@ int main(int argc, char *argv[])
         fprintf(stdout, "\nHit error %d\n", rc);
       }
       clearerr(file);
+    }
+    if (ii == 256)
+    {
+      fprintf(stdout, "\nReceived correct 256 bytes - exiting\n");
+      break;
     }
   } while (1);
 
