@@ -17,13 +17,13 @@ Run:
 Start the slave first:
 
 ```
-./slave /dev/serial0
+./slave -b 2400 /dev/serial0
 ```
 
 Start the master once the slave is running:
 
 ```
-./master /dev/serial0
+./master -b 2400 /dev/serial0
 ```
 
 Replace /dev/serial0 with the serial port the M-Bus device is connected to.  If this is a USB device it may be, for example, /dev/ttyUSB0.
